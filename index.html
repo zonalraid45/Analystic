@@ -121,12 +121,8 @@ button:hover {
 }
 
 .move {
-  padding: 4px 0;
+  padding: 3px 0;
 }
-
-.bad { color: #f87171; }
-.warn { color: #facc15; }
-.good { color: #4ade80; }
 </style>
 </head>
 
@@ -165,7 +161,7 @@ button:hover {
 <div class="panel">
   <h2>Analysis</h2>
   <div class="analysis" id="analysis">
-    <p class="hint">Engine + AI explanations will appear here</p>
+    <p class="hint">Engine and AI explanations will appear here</p>
   </div>
 </div>
 
@@ -173,37 +169,48 @@ button:hover {
 </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"></script>
+
 <script>
 function importPGN() {
   const pgn = document.getElementById("pgnInput").value.trim();
   const movesDiv = document.getElementById("moves");
   const analysisDiv = document.getElementById("analysis");
 
-  if (!pgn) {
-    alert("Please paste a PGN first");
-    return;
-  }
-
   movesDiv.innerHTML = "";
   analysisDiv.innerHTML = "";
 
-  const sampleMoves = [
-    { text: "1. e4", cls: "good" },
-    { text: "… e5", cls: "good" },
-    { text: "2. Qh5", cls: "bad" }
-  ];
+  if (!pgn) {
+    alert("Please paste a PGN");
+    return;
+  }
 
-  sampleMoves.forEach(m => {
+  const chess = new Chess();
+  const loaded = chess.load_pgn(pgn);
+
+  if (!loaded) {
+    alert("Invalid PGN");
+    return;
+  }
+
+  const history = chess.history();
+  let moveNumber = 1;
+
+  history.forEach((move, index) => {
     const div = document.createElement("div");
-    div.className = "move " + m.cls;
-    div.textContent = m.text;
+    div.className = "move";
+
+    if (index % 2 === 0) {
+      div.textContent = moveNumber + ". " + move;
+    } else {
+      div.textContent = "… " + move;
+      moveNumber++;
+    }
+
     movesDiv.appendChild(div);
   });
 
-  analysisDiv.innerHTML = `
-    <p><strong>Qh5??</strong> Blunder</p>
-    <p>This move brings the queen out too early and allows Black to gain tempo.</p>
-  `;
+  analysisDiv.innerHTML = "<p>PGN loaded successfully</p>";
 }
 </script>
 
