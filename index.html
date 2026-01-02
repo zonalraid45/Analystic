@@ -158,7 +158,7 @@ button:hover {
     <div class="panel">
       <h3>PGN Import</h3>
       <textarea id="pgnInput" placeholder="Paste PGN here (including headers)"></textarea>
-      <button onclick="importGame()">Import Game</button>
+      <button id="importBtn">Import Game</button>
     </div>
 
     <div class="panel">
@@ -179,32 +179,64 @@ var chess = new Chess();
 /**
  * Extracts SAN move tokens from a PGN string as a fallback.
  * Strips headers, comments, variations, move numbers and results.
- * Returns an array of move tokens (strings) or null if none found.
+ * Does not rely on the 's' flag so it's compatible across environments.
  */
 function extractMovesFromPGN(pgn) {
   if (!pgn) return null;
   // Remove header tags like [Event "..."]
-  var body = pgn.replace(/\[.*?\]\s*/gs, '');
+  var body = pgn.replace(/\[[^\]]*\]\s*/g, '');
   // Remove comments {...}
-  body = body.replace(/\{[^}]*\}/gs, '');
+  body = body.replace(/\{[^}]*\}/g, '');
   // Remove variations (...)
-  body = body.replace(/\([^)]*\)/gs, '');
+  body = body.replace(/\([^)]*\)/g, '');
   // Normalize whitespace
   body = body.replace(/\s+/g, ' ').trim();
   if (!body) return null;
   // Remove move numbers (e.g. "1." or "1..." )
-  body = body.replace(/\d+\.(\.\.)?/g, '');
+  body = body.replace(/\b\d+\.(\.\.)?/g, '');
   // Remove game result markers
-  body = body.replace(/\b1-0\b|\b0-1\b|\b1\/2-1\/2\b|\b\*\b/g, '');
+  body = body.replace(/\b1-0\b|\b0-1\b|\b1\/2-1\/2\b|\*\b/g, '');
   // Trim again and split tokens
   var tokens = body.split(/\s+/).filter(Boolean);
   // Remove annotation characters from end of tokens (e.g. "e4!", "Nf3?!", "Qh5+")
   tokens = tokens.map(function(t) {
-    // also remove numeric annotation glyphs like $2
+    // remove numeric annotation glyphs like $2
     t = t.replace(/\$\d+/g, '');
     return t.replace(/[\?\!\+#]+$/g, '').trim();
   }).filter(Boolean);
   return tokens.length ? tokens : null;
+}
+
+/**
+ * Try to call a PGN loader from chess.js if present.
+ * Supports multiple method names used by different builds.
+ * Returns true if loading produced moves (history length > 0).
+ */
+function tryLibraryLoadPgn(pgn) {
+  var loaders = ['load_pgn', 'loadPgn', 'loadPGN', 'loadPGN']; // common variants
+  for (var i = 0; i < loaders.length; i++) {
+    var name = loaders[i];
+    if (typeof chess[name] === 'function') {
+      try {
+        var ret = chess[name](pgn);
+        // Some builds return boolean, others undefined. Check history as a fallback.
+        if (ret === true || ret === false) return !!ret && chess.history().length > 0;
+        return chess.history().length > 0;
+      } catch (e) {
+        console.warn('PGN loader', name, 'threw:', e);
+        // continue to next
+      }
+    }
+  }
+  return false;
+}
+
+/** Safe HTML escape for moves text */
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>"']/g, function (m) {
+    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
+  });
 }
 
 function importGame() {
@@ -219,22 +251,16 @@ function importGame() {
   }
 
   var loaded = false;
-  // Try to use the library's PGN loader if available
+
+  // Try the library PGN loader (supports multiple method names)
   try {
-    if (typeof chess.load_pgn === 'function') {
-      var ret = chess.load_pgn(pgn);
-      if (ret === true || ret === false) {
-        loaded = !!ret;
-      } else {
-        loaded = chess.history && chess.history().length > 0;
-      }
-    }
+    loaded = tryLibraryLoadPgn(pgn);
   } catch (e) {
-    console.error('chess.load_pgn error:', e);
+    console.error('Library PGN load error:', e);
     loaded = false;
   }
 
-  // Fallback: manually parse and play moves
+  // Fallback: parse tokens and apply moves one by one
   if (!loaded) {
     var tokens = extractMovesFromPGN(pgn);
     if (!tokens) {
@@ -246,17 +272,32 @@ function importGame() {
       tokens.forEach(function(tok) {
         if (!tok) return;
         if (/^(1-0|0-1|1\/2-1\/2|\*)$/.test(tok)) return;
-        var moveResult = null;
-        if (typeof chess.move === 'function') {
+        var result = null;
+        // Try common move application forms for different builds
+        try {
+          result = chess.move(tok); // SAN string
+        } catch (e) {
+          result = null;
+        }
+        if (!result) {
           try {
-            moveResult = chess.move(tok);
+            // Some builds accept an object with san property
+            result = chess.move({ san: tok });
           } catch (e) {
-            try {
-              moveResult = chess.move(tok, { sloppy: true });
-            } catch (e2) {
-              console.warn('Failed to apply move token:', tok, e2);
-            }
+            result = null;
           }
+        }
+        if (!result) {
+          // As a last resort, try to remove trailing check/mate chars (should already be removed)
+          var cleaned = tok.replace(/[\+\#]+$/g, '');
+          try {
+            result = chess.move(cleaned);
+          } catch (e) {
+            result = null;
+          }
+        }
+        if (!result) {
+          console.warn('Could not apply token as a move:', tok);
         }
       });
       loaded = chess.history && chess.history().length > 0;
@@ -293,13 +334,11 @@ function importGame() {
   movesDiv.innerHTML = html;
 }
 
-/** Simple HTML escaper to avoid accidental markup injection in the move strings */
-function escapeHtml(str) {
-  if (!str) return '';
-  return str.replace(/[&<>"']/g, function (m) {
-    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
-  });
-}
+// Attach event listener rather than inline onclick
+document.addEventListener('DOMContentLoaded', function() {
+  var btn = document.getElementById('importBtn');
+  if (btn) btn.addEventListener('click', importGame);
+});
 </script>
 
 </body>
