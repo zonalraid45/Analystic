@@ -1,312 +1,205 @@
-<!DOCTYPE html>  
-<html lang="en">  
-<head>  
-<meta charset="UTF-8">  
-<title>Chess Analysis</title>  
-<meta name="viewport" content="width=device-width, initial-scale=1.0">  
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.13.4/chess.min.js"></script>  
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">  
-<style>  
-body {  
-  margin: 0;  
-  font-family: Poppins, sans-serif;  
-  background: linear-gradient(135deg, #0b1220, #0f1b2d);  
-  color: #e5e7eb;  
-}  
-  
-header {  
-  text-align: center;  
-  padding: 24px;  
-}  
-  
-header h1 {  
-  margin: 0;  
-  font-size: 28px;  
-}  
-  
-header p {  
-  margin-top: 6px;  
-  color: #9ca3af;  
-}  
-  
-.container {  
-  display: grid;  
-  grid-template-columns: 2fr 1fr;  
-  gap: 20px;  
-  padding: 20px;  
-}  
-  
-.board-box {  
-  background: radial-gradient(circle at top left, #1f2937, #020617);  
-  border-radius: 16px;  
-  min-height: 420px;  
-  display: flex;  
-  align-items: center;  
-  justify-content: center;  
-  color: #64748b;  
-  font-size: 18px;  
-}  
-  
-.side-panel {  
-  display: flex;  
-  flex-direction: column;  
-  gap: 16px;  
-}  
-  
-.panel {  
-  background: #020617;  
-  border-radius: 14px;  
-  padding: 14px;  
-}  
-  
-.panel h3 {  
-  margin: 0 0 10px 0;  
-  font-size: 15px;  
-  color: #38bdf8;  
-}  
-  
-textarea {  
-  width: 100%;  
-  height: 120px;  
-  background: #020617;  
-  border: 1px solid #1e293b;  
-  border-radius: 10px;  
-  color: #e5e7eb;  
-  padding: 10px;  
-  resize: none;  
-  font-family: monospace;  
-  font-size: 13px;  
-}  
-  
-button {  
-  margin-top: 10px;  
-  width: 100%;  
-  padding: 10px;  
-  background: #2563eb;  
-  border: none;  
-  border-radius: 10px;  
-  color: white;  
-  font-size: 14px;  
-  cursor: pointer;  
-}  
-  
-button:hover {  
-  background: #1d4ed8;  
-}  
-  
-.moves {  
-  max-height: 180px;  
-  overflow-y: auto;  
-  font-family: monospace;  
-  font-size: 13px;  
-  line-height: 1.6;  
-  color: #e5e7eb;  
-  padding: 6px;  
-}  
-  
-/* Table layout for aligned moves */  
-.moves table {  
-  width: 100%;  
-  border-collapse: collapse;  
-  table-layout: fixed;  
-}  
-.moves td {  
-  padding: 4px 6px;  
-  vertical-align: top;  
-  white-space: nowrap;  
-  overflow: hidden;  
-  text-overflow: ellipsis;  
-}  
-.moves td.num {  
-  width: 48px;  
-  color: #9ca3af;  
-  font-weight: 600;  
-}  
-.moves td.white {  
-  width: 46%;  
-  text-align: left;  
-  color: #e5e7eb;  
-  padding-left: 8px;  
-}  
-.moves td.black {  
-  width: 46%;  
-  text-align: right;  
-  color: #c7f9ff;  
-  padding-right: 8px;  
-}  
-  
-.analysis {  
-  min-height: 80px;  
-  color: #9ca3af;  
-  font-size: 13px;  
-}  
-</style>  
-</head>  
-<body>  
-  
-<header>  
-  <h1>Chess Analysis</h1>  
-  <p>Paste PGN to analyze your game</p>  
-</header>  
-  
-<div class="container">  
-  <div class="board-box">  
-    Chessboard will appear here  
-  </div>  
-  
-  <div class="side-panel">  
-    <div class="panel">  
-      <h3>PGN Import</h3>  
-      <textarea id="pgnInput" placeholder="Paste PGN here (including headers)"></textarea>  
-      <button onclick="importGame()">Import Game</button>  
-    </div>  
-  
-    <div class="panel">  
-      <h3>Moves</h3>  
-      <div class="moves" id="moves"></div>  
-    </div>  
-  
-    <div class="panel">  
-      <h3>Analysis</h3>  
-      <div class="analysis">Engine and AI explanations will appear here</div>  
-    </div>  
-  </div>  
-</div>  
-  
-<script>  
-var chess = new Chess();  
-  
-/**  
- * Extracts SAN move tokens from a PGN string as a fallback.  
- * Strips headers, comments, variations, move numbers and results.  
- * Returns an array of move tokens (strings) or null if none found.  
- */  
-function extractMovesFromPGN(pgn) {  
-  if (!pgn) return null;  
-  // Remove header tags like [Event "..."]  
-  var body = pgn.replace(/\[.*?\]\s*/gs, '');  
-  // Remove comments {...}  
-  body = body.replace(/\{[^}]*\}/gs, '');  
-  // Remove variations (...)  
-  body = body.replace(/\([^)]*\)/gs, '');  
-  // Normalize whitespace  
-  body = body.replace(/\s+/g, ' ').trim();  
-  if (!body) return null;  
-  // Remove move numbers (e.g. "1." or "1..." )  
-  body = body.replace(/\d+\.(\.\.)?/g, '');  
-  // Remove game result markers  
-  body = body.replace(/\b1-0\b|\b0-1\b|\b1\/2-1\/2\b|\b\*\b/g, '');  
-  // Trim again and split tokens  
-  var tokens = body.split(/\s+/).filter(Boolean);  
-  // Remove annotation characters from end of tokens (e.g. "e4!", "Nf3?!", "Qh5+")  
-  tokens = tokens.map(function(t) {  
-    // also remove numeric annotation glyphs like $2  
-    t = t.replace(/\$\d+/g, '');  
-    t = t.replace(/[\?\!\+#]+$/g, '').trim();  
-    // Fix case for piece moves - convert first letter to uppercase if it's a piece  
-    if (t.length > 1 && /^[a-h][1-8]$/.test(t) === false) {  
-      // Not a pawn move, so it should be a piece move  
-      t = t.charAt(0).toUpperCase() + t.slice(1);  
-    }  
-    return t;  
-  }).filter(Boolean);  
-  return tokens.length ? tokens : null;  
-}  
-  
-function importGame() {  
-  var pgn = document.getElementById("pgnInput").value || "";  
-  var movesDiv = document.getElementById("moves");  
-  movesDiv.innerHTML = "";  
-  chess.reset();  
-  
-  if (!pgn.trim()) {  
-    movesDiv.innerHTML = "Paste a PGN and click Import";  
-    return;  
-  }  
-  
-  var loaded = false;  
-  // Try to use the library's PGN loader if available  
-  try {  
-    if (typeof chess.load_pgn === 'function') {  
-      var ret = chess.load_pgn(pgn);  
-      if (ret === true || ret === false) {  
-        loaded = !!ret;  
-      } else {  
-        loaded = chess.history && chess.history().length > 0;  
-      }  
-    }  
-  } catch (e) {  
-    console.error('chess.load_pgn error:', e);  
-    loaded = false;  
-  }  
-  
-  // Fallback: manually parse and play moves  
-  if (!loaded) {  
-    var tokens = extractMovesFromPGN(pgn);  
-    if (!tokens) {  
-      movesDiv.innerHTML = "Invalid PGN";  
-      return;  
-    }  
-  
-    try {  
-      tokens.forEach(function(tok) {  
-        if (!tok) return;  
-        if (/^(1-0|0-1|1\/2-1\/2|\*)$/.test(tok)) return;  
-        var moveResult = null;  
-        if (typeof chess.move === 'function') {  
-          try {  
-            moveResult = chess.move(tok);  
-          } catch (e) {  
-            try {  
-              moveResult = chess.move(tok, { sloppy: true });  
-            } catch (e2) {  
-              console.warn('Failed to apply move token:', tok, e2);  
-            }  
-          }  
-        }  
-      });  
-      loaded = chess.history && chess.history().length > 0;  
-    } catch (e) {  
-      console.error('Fallback move application error:', e);  
-      loaded = false;  
-    }  
-  }  
-  
-  if (!loaded) {  
-    movesDiv.innerHTML = "Invalid PGN or no moves found";  
-    return;  
-  }  
-  
-  // Build moves list grouped by move number using a table for alignment  
-  var history = chess.history();  
-  if (!history || history.length === 0) {  
-    movesDiv.innerHTML = "No moves found";  
-    return;  
-  }  
-  
-  var html = '<table>';  
-  for (var i = 0; i < history.length; i += 2) {  
-    var n = Math.floor(i / 2) + 1;  
-    var w = history[i] || "";  
-    var b = history[i + 1] || "";  
-    html += '<tr>';  
-    html += '<td class="num">' + n + '.</td>';  
-    html += '<td class="white">' + escapeHtml(w) + '</td>';  
-    html += '<td class="black">' + escapeHtml(b) + '</td>';  
-    html += '</tr>';  
-  }  
-  html += '</table>';  
-  movesDiv.innerHTML = html;  
-}  
-  
-/** Simple HTML escaper to avoid accidental markup injection in the move strings */  
-function escapeHtml(str) {  
-  if (!str) return '';  
-  return str.replace(/[&<>"']/g, function (m) {  
-    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];  
-  });  
-}  
-</script>  
-  
-</body>  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chess Analysis</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.13.4/chess.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  font-family: Poppins, sans-serif;
+  background: linear-gradient(135deg, #0b1220, #0f1b2d);
+  color: #e5e7eb;
+}
+
+header {
+  text-align: center;
+  padding: 24px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+header p {
+  margin-top: 6px;
+  color: #9ca3af;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+.board-box {
+  background: radial-gradient(circle at top left, #1f2937, #020617);
+  border-radius: 16px;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+}
+
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panel {
+  background: #020617;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.panel h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  color: #38bdf8;
+}
+
+textarea {
+  width: 100%;
+  height: 120px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  color: #e5e7eb;
+  padding: 10px;
+  resize: none;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+button {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  background: #2563eb;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+.moves {
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.moves table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.moves td {
+  padding: 4px 6px;
+}
+
+.moves .num {
+  width: 40px;
+  color: #9ca3af;
+}
+
+.moves .white {
+  text-align: left;
+}
+
+.moves .black {
+  text-align: right;
+  color: #c7f9ff;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Chess Analysis</h1>
+  <p>Paste a full PGN starting from move 1</p>
+</header>
+
+<div class="container">
+  <div class="board-box">Chessboard will appear here</div>
+
+  <div class="side-panel">
+    <div class="panel">
+      <h3>PGN Import</h3>
+      <textarea id="pgnInput"></textarea>
+      <button onclick="importGame()">Import Game</button>
+    </div>
+
+    <div class="panel">
+      <h3>Moves</h3>
+      <div class="moves" id="moves"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Analysis</h3>
+      Engine and AI explanations will appear here
+    </div>
+  </div>
+</div>
+
+<script>
+var chess = new Chess();
+
+function normalizePGN(pgn) {
+  if (!/\[Result\s+/.test(pgn)) {
+    pgn = pgn.trim() + "\n\n*";
+  }
+  return pgn;
+}
+
+function importGame() {
+  var input = document.getElementById("pgnInput").value.trim();
+  var movesDiv = document.getElementById("moves");
+  movesDiv.innerHTML = "";
+  chess.reset();
+
+  if (!input) {
+    movesDiv.textContent = "Paste a full PGN";
+    return;
+  }
+
+  var pgn = normalizePGN(input);
+  var ok = chess.load_pgn(pgn);
+
+  if (!ok) {
+    movesDiv.textContent = "Invalid or incomplete PGN (must start from move 1)";
+    return;
+  }
+
+  var history = chess.history();
+  var html = "<table>";
+
+  for (var i = 0; i < history.length; i += 2) {
+    html += "<tr>";
+    html += "<td class='num'>" + (i / 2 + 1) + ".</td>";
+    html += "<td class='white'>" + (history[i] || "") + "</td>";
+    html += "<td class='black'>" + (history[i + 1] || "") + "</td>";
+    html += "</tr>";
+  }
+
+  html += "</table>";
+  movesDiv.innerHTML = html;
+}
+</script>
+
+</body>
 </html>
