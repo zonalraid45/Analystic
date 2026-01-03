@@ -1,22 +1,36 @@
-const chess = new Chess();
+let chess;
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("importBtn").addEventListener("click", importGame);
+  if (typeof Chess !== "function") {
+    alert("chess.js failed to load");
+    return;
+  }
+
+  chess = new Chess();
+
+  const button = document.querySelector("button");
+  if (button) button.addEventListener("click", importGame);
 });
 
 function importGame() {
-  const pgn = document.getElementById("pgnInput").value.trim();
+  const pgnInput = document.getElementById("pgnInput");
   const movesDiv = document.getElementById("moves");
 
   chess.reset();
   movesDiv.innerHTML = "";
 
-  if (!pgn) {
-    movesDiv.textContent = "Paste PGN";
+  const text = pgnInput.value.trim();
+  if (!text) {
+    movesDiv.textContent = "Paste PGN and click Import";
     return;
   }
 
-  chess.load_pgn(pgn, { sloppy: true });
+  const loaded = chess.load_pgn(text, { sloppy: true });
+
+  if (!loaded) {
+    movesDiv.textContent = "Invalid PGN";
+    return;
+  }
 
   const history = chess.history();
   if (!history.length) {
