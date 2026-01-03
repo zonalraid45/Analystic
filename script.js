@@ -1,34 +1,31 @@
 const chess = new Chess();
 
 document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("importBtn");
-  if (btn) btn.addEventListener("click", importGame);
+  document.getElementById("importBtn").addEventListener("click", importGame);
 });
 
 function importGame() {
   const pgnInput = document.getElementById("pgnInput");
   const movesDiv = document.getElementById("moves");
 
-  if (!pgnInput || !movesDiv) return;
-
   chess.reset();
   movesDiv.innerHTML = "";
 
   const pgn = pgnInput.value.trim();
   if (!pgn) {
-    movesDiv.textContent = "Paste PGN and click Import";
+    movesDiv.textContent = "Paste PGN";
     return;
   }
 
-  const ok = chess.load_pgn(pgn);
-  if (!ok) {
-    movesDiv.textContent = "Invalid PGN";
-    return;
-  }
+  chess.load_pgn(pgn, { sloppy: true });
 
   const history = chess.history();
-  let html = "<table>";
+  if (history.length === 0) {
+    movesDiv.textContent = "PGN parsed but no legal moves";
+    return;
+  }
 
+  let html = "<table>";
   for (let i = 0; i < history.length; i += 2) {
     html += `<tr>
       <td class="num">${i / 2 + 1}.</td>
@@ -36,7 +33,7 @@ function importGame() {
       <td class="black">${history[i + 1] || ""}</td>
     </tr>`;
   }
-
   html += "</table>";
+
   movesDiv.innerHTML = html;
 }
