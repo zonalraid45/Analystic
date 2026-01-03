@@ -1,7 +1,7 @@
 const chess = new Chess();
 
 document.addEventListener("DOMContentLoaded", () => {
-  const button = document.querySelector("button");
+  const button = document.getElementById("importBtn");
   if (button) button.addEventListener("click", importGame);
 });
 
