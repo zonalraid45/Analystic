@@ -214,6 +214,9 @@ function extractMovesFromPGN(pgn) {
 }  
   
 function importGame() {  
+  console.log('PGN input:', pgn);  
+  console.log('Chess object available:', typeof chess !== 'undefined');  
+  console.log('load_pgn available:', typeof chess.load_pgn === 'function');
   var pgn = document.getElementById("pgnInput").value || "";  
   var movesDiv = document.getElementById("moves");  
   movesDiv.innerHTML = "";  
