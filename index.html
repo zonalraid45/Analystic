@@ -1,42 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Chess Analysis</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.13.4/chess.js"></script>
-<script src="script.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="style.css">
-
-
+    <meta charset="UTF-8">
+    <title>Chess Analysis</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <header>
-  <h1>Chess Analysis</h1>
-  <p>Paste PGN to analyze your game</p>
+    <h1>Chess Analysis</h1>
+    <p>Paste PGN to analyze your game</p>
 </header>
 
 <div class="container">
-  <div class="board-box">Chessboard will appear here</div>
+    <div class="board-box">Chessboard will appear here</div>
 
-  <div>
-    <div class="panel">
-      <h3>PGN Import</h3>
-      <textarea id="pgnInput"></textarea>
-      <button id="importBtn">Import Game</button>
-    </div>
+    <div class="controls">
+        <div class="panel">
+            <h3>PGN Import</h3>
+            <textarea id="pgnInput" placeholder="1. e4 e5 2. Nf3..."></textarea>
+            <button id="importBtn">Import Game</button>
+        </div>
 
-    <div class="panel">
-      <h3>Moves</h3>
-      <div id="moves" class="moves"></div>
+        <div class="panel">
+            <h3>Moves</h3>
+            <div id="moves" class="moves"></div>
+        </div>
     </div>
-  </div>
 </div>
 
+<script src="script.js"></script>
 </body>
 </html>
