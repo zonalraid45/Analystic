@@ -22,8 +22,8 @@ header {
   border-radius: 16px;
   min-height: 420px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+  justify-content: stretch;
   color: #64748b;
 }
 
@@ -58,9 +58,11 @@ button {
 }
 
 .moves {
-  max-height: 220px;
+  max-height: none;
+  flex: 1;
   overflow-y: auto;
   font-family: monospace;
+  padding-right: 12px;
 }
 
 .moves table {
@@ -85,6 +87,7 @@ button {
 .moves td.white {
   color: #c7f9ff;
 }
+
 .board-layout {
   display: grid;
   grid-template-columns: 2.2fr 1fr;
@@ -108,10 +111,20 @@ button {
   padding: 10px;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .board-moves h3 {
   margin: 0 0 8px 0;
   text-align: center;
   font-size: 14px;
+}
+
+.moves::-webkit-scrollbar {
+  width: 6px;
+}
+
+.moves::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
 }
