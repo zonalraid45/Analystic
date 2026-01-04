@@ -11,7 +11,7 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: hidden; /* Prevents the whole page from scrolling */
 }
 
 header {
@@ -40,6 +40,7 @@ header p {
   width: 100%;
   max-width: 100%;
   align-items: stretch;
+  min-height: 0; /* Important for grid stability */
 }
 
 .board-box {
@@ -48,15 +49,16 @@ header p {
   display: flex;
   overflow: hidden;
   border: 1px solid #1e293b;
-  height: 100%; /* Fills the height of the screen below header */
+  height: 100%;
 }
 
 .board-layout {
   display: grid;
-  grid-template-columns: 1.8fr 1fr; /* Gives more priority to the board */
+  grid-template-columns: 1.8fr 1fr;
   gap: 15px;
   width: 100%;
   padding: 15px;
+  min-height: 0;
 }
 
 .board-area {
@@ -70,6 +72,7 @@ header p {
   color: #64748b;
   border: 10px solid #1e293b;
   font-size: 3.2vh;
+  text-align: center;
 }
 
 .board-moves {
@@ -80,6 +83,7 @@ header p {
   height: 100%;
   overflow: hidden;
   border: 1px solid #1e293b;
+  min-width: 0; /* Prevents text from pushing width */
 }
 
 .board-moves h3 {
@@ -89,6 +93,7 @@ header p {
   font-size: 2vh;
   color: #94a3b8;
   border-bottom: 1px solid #1e293b;
+  flex-shrink: 0;
 }
 
 .moves {
@@ -96,20 +101,25 @@ header p {
   overflow-y: auto;
   font-family: monospace;
   padding: 10px;
+  min-height: 0;
 }
 
 .moves table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed; /* Fixes the column widths */
 }
 
 .moves td {
   padding: 0.8vh 5px;
   font-size: 1.6vh;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .moves td.num {
-  width: 35px;
+  width: 45px;
   color: #64748b;
 }
 
@@ -121,11 +131,13 @@ header p {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-width: 0; /* Prevents text from pushing width */
 }
 
 .panel h3 {
   margin: 0 0 1.5vh 0;
   font-size: 2.2vh;
+  flex-shrink: 0;
 }
 
 textarea {
@@ -140,6 +152,8 @@ textarea {
   font-family: monospace;
   font-size: 1.6vh;
   outline: none;
+  word-wrap: break-word; /* Forces long PGN text to wrap instead of widening */
+  overflow-y: auto;
 }
 
 button {
@@ -153,17 +167,21 @@ button {
   font-weight: 600;
   font-size: 2vh;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 button:hover {
   background: #1d4ed8;
 }
 
-.moves::-webkit-scrollbar {
+/* Scrollbar Styling */
+.moves::-webkit-scrollbar,
+textarea::-webkit-scrollbar {
   width: 6px;
 }
 
-.moves::-webkit-scrollbar-thumb {
+.moves::-webkit-scrollbar-thumb,
+textarea::-webkit-scrollbar-thumb {
   background: #1e293b;
   border-radius: 10px;
 }
