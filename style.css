@@ -37,36 +37,31 @@ header p {
   gap: 20px;
   padding: 0 2vw 2vh 2vw;
   flex-grow: 1;
-  width: 100%;
-  max-width: 100%;
-  align-items: stretch; /* Stretches both sides to equal height */
-  min-height: 0; 
+  min-height: 0;
+  align-items: stretch; /* Keeps right side tall */
 }
 
-/* LEFT SIDE */
+/* LEFT SIDE FIX */
 .board-box {
   background: #020617;
   border-radius: 12px;
-  display: flex;
-  overflow: hidden;
   border: 1px solid #1e293b;
-  height: 100%; 
+  height: 100%;
+  overflow: hidden;
 }
 
 .board-layout {
   display: grid;
-  grid-template-columns: 1.8fr 1fr;
+  grid-template-columns: 1.8fr 1fr; /* This keeps the Move box wide enough */
   gap: 15px;
   width: 100%;
+  height: 100%;
   padding: 15px;
-  min-height: 0;
 }
 
 .board-area {
   background: #020617;
   border-radius: 8px;
-  width: 100%;
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -82,8 +77,8 @@ header p {
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow: hidden;
   border: 1px solid #1e293b;
+  min-width: 0; /* Prevents shrinking */
 }
 
 .board-moves h3 {
@@ -93,17 +88,15 @@ header p {
   font-size: 2vh;
   color: #94a3b8;
   border-bottom: 1px solid #1e293b;
-  flex-shrink: 0;
 }
 
 .moves {
   flex: 1;
   overflow-y: auto;
-  font-family: monospace;
   padding: 10px;
 }
 
-/* RIGHT SIDE (CONTROLS) */
+/* RIGHT SIDE CONTROLS */
 .controls {
   display: flex;
   flex-direction: column;
@@ -118,14 +111,13 @@ header p {
   border: 1px solid #1e293b;
   display: flex;
   flex-direction: column;
-  flex: 1; /* Makes PGN + AI boxes split height equally */
-  min-height: 0; 
+  flex: 1; /* PGN and AI boxes split height 50/50 */
+  min-height: 0;
 }
 
 .panel h3 {
   margin: 0 0 1.5vh 0;
   font-size: 2.2vh;
-  flex-shrink: 0;
 }
 
 textarea {
@@ -140,8 +132,6 @@ textarea {
   font-family: monospace;
   font-size: 1.6vh;
   outline: none;
-  word-wrap: break-word;
-  overflow-y: auto;
 }
 
 .ai-content {
@@ -153,7 +143,6 @@ textarea {
   color: #94a3b8;
   font-size: 1.6vh;
   overflow-y: auto;
-  line-height: 1.5;
 }
 
 button {
@@ -167,11 +156,6 @@ button {
   font-weight: 600;
   font-size: 2vh;
   cursor: pointer;
-  flex-shrink: 0;
-}
-
-button:hover {
-  background: #1d4ed8;
 }
 
 /* Scrollbars */
