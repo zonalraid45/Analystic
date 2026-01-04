@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: Poppins, sans-serif;
@@ -7,14 +11,16 @@ body {
 
 header {
   text-align: center;
-  padding: 24px;
+  padding: 16px;
 }
 
 .container {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1.6fr 1fr;
   gap: 20px;
   padding: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 .board-box {
@@ -22,15 +28,16 @@ header {
   border-radius: 16px;
   display: flex;
   overflow: hidden;
+  border: 1px solid #1e293b;
+  max-height: 480px;
 }
 
 .board-layout {
   display: grid;
-  grid-template-columns: 2.2fr 1fr;
+  grid-template-columns: 1.2fr 1fr;
   gap: 12px;
   width: 100%;
   padding: 12px;
-  align-items: stretch;
 }
 
 .board-area {
@@ -38,11 +45,11 @@ header {
   border-radius: 12px;
   aspect-ratio: 1 / 1;
   width: 100%;
-  max-height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #64748b;
+  border: 1px solid #1e293b;
 }
 
 .board-moves {
@@ -50,27 +57,25 @@ header {
   border-radius: 12px;
   display: flex;
   flex-direction: column;
-  height: 0;
-  min-height: 100%;
+  height: 100%;
   overflow: hidden;
-}
-
-.board-layout {
-  grid-auto-rows: 1fr;
+  border: 1px solid #1e293b;
 }
 
 .board-moves h3 {
-  margin: 8px 0;
+  margin: 10px 0;
   text-align: center;
   font-size: 14px;
+  color: #9ca3af;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 8px;
 }
 
 .moves {
   flex: 1;
   overflow-y: auto;
   font-family: monospace;
-  padding: 0 12px 8px 12px;
-  min-height: 0;
+  padding: 8px;
 }
 
 .moves table {
@@ -79,33 +84,41 @@ header {
 }
 
 .moves td {
-  padding: 4px;
+  padding: 6px 4px;
+  font-size: 13px;
 }
 
 .moves td.num {
-  width: 36px;
-  color: #c7f9ff;
+  width: 32px;
+  color: #64748b;
 }
 
 .moves td.white,
 .moves td.black {
   color: #c7f9ff;
+  width: 45%;
 }
 
-.moves td.black {
-  text-align: right;
+.moves tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .panel {
   background: #020617;
   border-radius: 14px;
   padding: 14px;
+  border: 1px solid #1e293b;
+}
+
+.panel h3 {
+  margin-top: 0;
+  font-size: 16px;
 }
 
 textarea {
   width: 100%;
-  height: 140px;
-  background: #020617;
+  height: 100px;
+  background: #0f172a;
   border: 1px solid #1e293b;
   border-radius: 10px;
   color: #e5e7eb;
@@ -117,10 +130,24 @@ textarea {
 button {
   width: 100%;
   margin-top: 10px;
-  padding: 10px;
+  padding: 12px;
   background: #2563eb;
   border: none;
   border-radius: 10px;
   color: white;
+  font-weight: 600;
   cursor: pointer;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+.moves::-webkit-scrollbar {
+  width: 5px;
+}
+
+.moves::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 10px;
 }
