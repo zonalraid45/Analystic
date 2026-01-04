@@ -20,10 +20,8 @@ header {
 .board-box {
   background: radial-gradient(circle at top left, #1f2937, #020617);
   border-radius: 16px;
-  min-height: 420px;
+  height: 420px;
   display: flex;
-  align-items: stretch;
-  justify-content: stretch;
   color: #64748b;
 }
 
@@ -57,37 +55,6 @@ button {
   cursor: pointer;
 }
 
-.moves {
-  max-height: none;
-  flex: 1;
-  overflow-y: auto;
-  font-family: monospace;
-  padding-right: 12px;
-}
-
-.moves table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.moves td {
-  padding: 4px;
-}
-
-.moves td.num {
-  width: 36px;
-  color: #c7f9ff;
-}
-
-.moves td.black {
-  text-align: right;
-  color: #c7f9ff;
-}
-
-.moves td.white {
-  color: #c7f9ff;
-}
-
 .board-layout {
   display: grid;
   grid-template-columns: 2.2fr 1fr;
@@ -108,16 +75,46 @@ button {
 .board-moves {
   background: #020617;
   border-radius: 12px;
-  padding: 10px;
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: hidden;
 }
 
 .board-moves h3 {
-  margin: 0 0 8px 0;
+  margin: 8px 0;
   text-align: center;
   font-size: 14px;
+}
+
+.moves {
+  flex: 1;
+  overflow-y: auto;
+  font-family: monospace;
+  padding: 0 12px 8px 12px;
+}
+
+.moves table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.moves td {
+  padding: 4px;
+}
+
+.moves td.num {
+  width: 36px;
+  color: #c7f9ff;
+}
+
+.moves td.white,
+.moves td.black {
+  color: #c7f9ff;
+}
+
+.moves td.black {
+  text-align: right;
 }
 
 .moves::-webkit-scrollbar {
