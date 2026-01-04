@@ -61,8 +61,7 @@ header p {
 
 .board-area {
   background: #020617;
-  border-radius: 8px;
-  /* Fixed: Removed aspect-ratio so it expands to fill the width again */
+  border-radius: 20px;
   width: 100%;
   height: 100%;
   display: flex;
@@ -70,7 +69,7 @@ header p {
   justify-content: center;
   color: #64748b;
   border: 1px solid #1e293b;
-  font-size: 2.2vh;
+  font-size: 3.2vh;
 }
 
 .board-moves {
