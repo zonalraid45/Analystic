@@ -7,53 +7,43 @@ body {
   font-family: Poppins, sans-serif;
   background: linear-gradient(135deg, #0b1220, #0f1b2d);
   color: #e5e7eb;
-  overflow-x: hidden;
 }
 
 header {
   text-align: center;
-  padding: 8px;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 18px;
-}
-
-header p {
-  margin: 2px 0;
-  font-size: 11px;
-  color: #94a3b8;
+  padding: 24px;
 }
 
 .container {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 12px;
-  padding: 10px;
-  max-width: 850px;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  padding: 20px;
+  max-width: 1300px;
   margin: 0 auto;
 }
 
 .board-box {
-  background: #020617;
-  border-radius: 10px;
+  background: radial-gradient(circle at top left, #1f2937, #020617);
+  border-radius: 16px;
+  display: flex;
   overflow: hidden;
   border: 1px solid #1e293b;
-  max-height: 340px;
+  width: 100%;
 }
 
 .board-layout {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 8px;
+  grid-template-columns: 2.5fr 1fr;
+  gap: 16px;
   width: 100%;
-  padding: 8px;
+  padding: 16px;
+  align-items: stretch;
 }
 
 .board-area {
   background: #020617;
-  border-radius: 6px;
+  border-radius: 12px;
   aspect-ratio: 1 / 1;
   width: 100%;
   display: flex;
@@ -61,25 +51,26 @@ header p {
   justify-content: center;
   color: #64748b;
   border: 1px solid #1e293b;
-  font-size: 11px;
+  font-size: 16px;
 }
 
 .board-moves {
   background: #020617;
-  border-radius: 6px;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 400px;
   overflow: hidden;
   border: 1px solid #1e293b;
 }
 
 .board-moves h3 {
   margin: 0;
-  padding: 6px;
+  padding: 12px;
   text-align: center;
-  font-size: 12px;
-  color: #9ca3af;
+  font-size: 14px;
+  color: #94a3b8;
   border-bottom: 1px solid #1e293b;
 }
 
@@ -87,7 +78,7 @@ header p {
   flex: 1;
   overflow-y: auto;
   font-family: monospace;
-  padding: 4px;
+  padding: 12px;
 }
 
 .moves table {
@@ -96,59 +87,74 @@ header p {
 }
 
 .moves td {
-  padding: 2px;
-  font-size: 11px;
+  padding: 6px 4px;
+  font-size: 14px;
 }
 
 .moves td.num {
-  width: 22px;
+  width: 30px;
   color: #64748b;
 }
 
 .moves td.white,
 .moves td.black {
   color: #c7f9ff;
+  width: 45%;
+}
+
+.moves tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .panel {
   background: #020617;
-  border-radius: 10px;
-  padding: 10px;
+  border-radius: 14px;
+  padding: 20px;
   border: 1px solid #1e293b;
 }
 
 .panel h3 {
-  margin: 0 0 6px 0;
-  font-size: 13px;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 16px;
 }
 
 textarea {
   width: 100%;
-  height: 70px;
+  height: 150px;
   background: #0f172a;
   border: 1px solid #1e293b;
-  border-radius: 6px;
+  border-radius: 10px;
   color: #e5e7eb;
-  padding: 6px;
+  padding: 12px;
   resize: none;
-  font-size: 11px;
+  font-family: monospace;
+  outline: none;
+}
+
+textarea:focus {
+  border-color: #2563eb;
 }
 
 button {
   width: 100%;
-  margin-top: 6px;
-  padding: 7px;
+  margin-top: 12px;
+  padding: 12px;
   background: #2563eb;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   color: white;
   font-weight: 600;
-  font-size: 12px;
   cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #1d4ed8;
 }
 
 .moves::-webkit-scrollbar {
-  width: 3px;
+  width: 6px;
 }
 
 .moves::-webkit-scrollbar-thumb {
